@@ -93,3 +93,10 @@ int main() {
     testClient(factoryB);
 }
 ```
+
+## Builder
+allow you to create objects step by step, and produce different types and represetation of objects by same construction code.
+
+Construct your object by series ordered builder step, you can implement different builder to construct different objects.
+
+Suit for cases that your object is quite complex require extensive configuration.
