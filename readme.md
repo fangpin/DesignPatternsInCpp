@@ -1,5 +1,9 @@
-# creational patterns
-## Abstract Factory
+- [1. creational patterns](#1-creational-patterns)
+  - [1.1. Abstract Factory](#11-abstract-factory)
+  - [1.2. Builder](#12-builder)
+
+# 1. creational patterns
+## 1.1. Abstract Factory
 ```cpp
 #include <string>
 #include <memory>
@@ -94,7 +98,7 @@ int main() {
 }
 ```
 
-## Builder
+## 1.2. Builder
 allow you to create objects step by step, and produce different types and represetation of objects by same construction code.
 
 Construct your object by series ordered builder step, you can implement different builder to construct different objects.
