@@ -2,8 +2,9 @@
   - [1.1. Abstract Factory](#11-abstract-factory)
   - [1.2. Builder](#12-builder)
   - [1.3. prototype](#13-prototype)
-  - [singleton](#singleton)
-    - [naive singleton design pattern](#naive-singleton-design-pattern)
+  - [1.4. singleton](#14-singleton)
+    - [1.4.1. naive singleton design pattern](#141-naive-singleton-design-pattern)
+    - [thread safe singleton](#thread-safe-singleton)
 
 # 1. creational patterns
 ## 1.1. Abstract Factory
@@ -185,10 +186,10 @@ int main() {
 ## 1.3. prototype
 Prototype is a design pattern that lets you copy existing objects without making your code depend on their classes.
 
-## singleton
+## 1.4. singleton
 Singleton is a design pattern, which ensures that only one instance of that kind exists and provides a single point of access to if for other code.
 Singleton has same pros and cons as global variables, and never breaking the modularity of your code.
-### naive singleton design pattern
+### 1.4.1. naive singleton design pattern
 ```cpp
 #include <iostream>
 #include <type_traits>
@@ -234,6 +235,70 @@ struct TestClass2 {
 int main() {
     cout << Singleton<TestClass1>::Instance()->a << endl;
     cout << Singleton<TestClass2>::Instance()->b << endl;
+    return 0;
+}
+```
+
+### thread safe singleton
+```cpp
+#include <iostream>
+#include <mutex>
+#include <thread>
+#include <vector>
+#include <type_traits>
+
+using namespace std;
+
+template<typename T, typename Enable = void>
+class SingleTon;
+
+template<typename T>
+class SingleTon<T, enable_if_t<is_default_constructible<T>::value>>
+{
+private:
+    static mutex mtx;
+public:
+    static T* instance;
+    SingleTon() = delete;
+    SingleTon(SingleTon&) = delete;
+    SingleTon(SingleTon&&) = delete;
+
+    static T* Instance();
+};
+
+template<typename T>
+T* SingleTon<T, enable_if_t<is_default_constructible<T>::value>>::instance = nullptr;
+
+template<typename T>
+mutex SingleTon<T, enable_if_t<is_default_constructible<T>::value>>::mtx;
+
+template<typename T>
+T* SingleTon<T, enable_if_t<is_default_constructible<T>::value>>::Instance() {
+    if (!instance) {
+        unique_lock<mutex> locker(SingleTon<T, enable_if_t<is_default_constructible<T>::value>>::mtx);
+        if (!instance) {
+            instance = new T();
+        }
+    }
+    return instance;
+}
+
+struct TestClass {
+    int a;
+    TestClass(): a(-1) {}
+};
+
+void TestFunc() {
+    cout << SingleTon<TestClass>::Instance()->a << endl;
+}
+
+int main() {
+    vector<thread> vec;
+    for (int i=0; i<10; ++i) {
+        vec.emplace_back(TestFunc);
+    }
+    for (auto& thd : vec)
+        thd.join();
     return 0;
 }
 ```
