@@ -4,7 +4,10 @@
   - [1.3. prototype](#13-prototype)
   - [1.4. singleton](#14-singleton)
     - [1.4.1. naive singleton design pattern](#141-naive-singleton-design-pattern)
-    - [thread safe singleton](#thread-safe-singleton)
+    - [1.4.2. thread safe singleton](#142-thread-safe-singleton)
+- [2. Structural Patterns](#2-structural-patterns)
+  - [2.1. Adapater](#21-adapater)
+  - [2.2. Bridge](#22-bridge)
 
 # 1. creational patterns
 ## 1.1. Abstract Factory
@@ -239,7 +242,7 @@ int main() {
 }
 ```
 
-### thread safe singleton
+### 1.4.2. thread safe singleton
 ```cpp
 #include <iostream>
 #include <mutex>
@@ -299,6 +302,137 @@ int main() {
     }
     for (auto& thd : vec)
         thd.join();
+    return 0;
+}
+```
+
+# 2. Structural Patterns
+## 2.1. Adapater
+Adapater is a design pattern that allows objects with incompatible interface to collabrate.
+Convert interface of one object so that another interface can understand it.
+```cpp
+#include <iostream>
+#include <algorithm>
+#include <string>
+
+using namespace std;
+
+class Target {
+public:
+    virtual ~Target() = default;
+    virtual string Request() const {
+        return "ABC";
+    }
+};
+
+class Adaptee {
+public:
+    virtual ~Adaptee() = default;
+    string SpecificRequest() const {
+        return "CBA";
+    }
+};
+
+class Adapter : public Target, public Adaptee {
+public:
+    string Request() const override {
+        string reverseStr = SpecificRequest();
+        reverse(reverseStr.begin(), reverseStr.end());
+        return reverseStr;
+    }
+};
+
+string CompatibleClient(const Target& target) {
+    return target.Request();
+}
+
+string IncompatibleClient(const Adaptee adaptee) {
+    return adaptee.SpecificRequest();
+}
+
+int main() {
+    Target target;
+    Adaptee adaptee;
+    Adapter adapter;
+    cout << "Target:\t" << CompatibleClient(target) << endl;
+    cout << "Adaptee:\t" << IncompatibleClient(adaptee) << endl;
+    cout << "Adapter:\t" << CompatibleClient(adapter) << endl;
+    return 0;
+}
+```
+
+## 2.2. Bridge
+Bridge is a design pattern that allows you to split a large class or a set of closely related classed into two separated hierarchies and can be developed independently of each other.
+```cpp
+#include <string>
+#include <iostream>
+
+using namespace std;
+
+class Color {
+public:
+    virtual ~Color() = default;
+    virtual string MyColor() const = 0;
+};
+
+class Red : public Color {
+public:
+    string MyColor() const override {
+        return "red";
+    }
+};
+
+class Blue : public Color {
+public:
+    string MyColor() const override {
+        return "blue";
+    }
+};
+
+class Shape {
+public:
+    virtual ~Shape() = default;
+    virtual string MyShape() const = 0;
+};
+
+class Square : public Shape {
+public:
+    string MyShape() const override {
+        return "Square";
+    }
+};
+
+class Triangle : public Shape {
+public:
+    string MyShape() const override {
+        return "Triangle";
+    }
+};
+
+class ColorShapeBridge {
+private:
+    const Color& color_;
+    const Shape& shape_;
+public:
+    ColorShapeBridge(const Color& color, const Shape& shape): color_(color), shape_(shape) {}
+    void ShowInfo() const {
+        cout << "Color:\t" << color_.MyColor() << "\tShape:\t" << shape_.MyShape() << endl;
+    }
+};
+
+void Client(const ColorShapeBridge& cs) {
+    cs.ShowInfo();
+}
+
+int main() {
+    Red red;
+    Blue blue;
+    Square square;
+    Triangle triangle;
+    ColorShapeBridge b1(red, square);
+    ColorShapeBridge b2(blue, triangle);
+    Client(b1);
+    Client(b2);
     return 0;
 }
 ```
