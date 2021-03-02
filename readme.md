@@ -3,11 +3,13 @@
   - [1.2. Builder](#12-builder)
   - [1.3. prototype](#13-prototype)
   - [1.4. singleton](#14-singleton)
-    - [1.4.1. naive singleton design pattern](#141-naive-singleton-design-pattern)
+    - [1.4.1. naive singleton](#141-naive-singleton)
     - [1.4.2. thread safe singleton](#142-thread-safe-singleton)
 - [2. Structural Patterns](#2-structural-patterns)
   - [2.1. Adapater](#21-adapater)
   - [2.2. Bridge](#22-bridge)
+  - [Composite](#composite)
+  - [Decorator](#decorator)
 
 # 1. creational patterns
 ## 1.1. Abstract Factory
@@ -192,7 +194,7 @@ Prototype is a design pattern that lets you copy existing objects without making
 ## 1.4. singleton
 Singleton is a design pattern, which ensures that only one instance of that kind exists and provides a single point of access to if for other code.
 Singleton has same pros and cons as global variables, and never breaking the modularity of your code.
-### 1.4.1. naive singleton design pattern
+### 1.4.1. naive singleton
 ```cpp
 #include <iostream>
 #include <type_traits>
@@ -433,6 +435,72 @@ int main() {
     ColorShapeBridge b2(blue, triangle);
     Client(b1);
     Client(b2);
+    return 0;
+}
+```
+## Composite
+Is a design pattern that allows you to compose objects into tree structures then work with these structures as if they were individual objects.
+
+## Decorator
+Is a design pattern that allows you to attach new behaviors to objects by placing objects inside special wrapper objects that contains the behaviors.
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class Component {
+public:
+    virtual ~Component() = default;
+    virtual void Operation() const = 0;
+};
+
+class ConcreteComponent : public Component {
+public:
+    void Operation() const override {
+        cout << " concrete component " << endl;
+    }
+};
+
+class Decorator : public Component {
+private:
+    Component& component_;
+public:
+    Decorator(Component& component): component_(component) {}
+    void Operation() const override {
+        return component_.Operation();
+    }
+};
+
+class ConcreteDecoratorA : public Decorator {
+public:
+    ConcreteDecoratorA(Component& component): Decorator(component) {}
+    void Operation() const override {
+        cout << "ConcreateDecoratorA:\t";
+        Decorator::Operation();
+    }
+};
+
+class ConcreteDecoratorB : public Decorator {
+public:
+    ConcreteDecoratorB(Component& component): Decorator(component) {}
+    void Operation() const override {
+        cout << "ConcreateDecoratorB:\t";
+        Decorator::Operation();
+    }
+};
+
+void Client(const Component& component) {
+    component.Operation();
+}
+
+
+int main() {
+    ConcreteComponent component;
+    Client(component);
+    ConcreteDecoratorA decoratedComponentA(component);
+    ConcreteDecoratorB decoretedComponentB(decoratedComponentA);
+    Client(decoratedComponentA);
+    Client(decoretedComponentB);
     return 0;
 }
 ```
