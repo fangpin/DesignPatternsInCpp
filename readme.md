@@ -15,6 +15,7 @@
   - [2.7. proxy](#27-proxy)
 - [3. Behavioral Patterns](#3-behavioral-patterns)
   - [3.1. chain of responsibiliby](#31-chain-of-responsibiliby)
+  - [command](#command)
 
 # 1. creational patterns
 ## 1.1. Abstract Factory
@@ -645,6 +646,69 @@ int main() {
     HandlerC C;
     A.SetNext(&B).SetNext(&C);
     Client(A);
+    return 0;
+}
+```
+
+## command
+is a design pattern that turns a request into a standalone object that stores all the required information of the request, which enables you parameterize a method with different requests, delay or queue a request's execution, and support undoable operations
+```cpp
+#include <iostream>
+#include <string>
+// c++17
+#include <string_view>
+
+using namespace std;
+
+class Command {
+protected:
+    string name_;
+public:
+    Command(string_view name): name_(name) {}
+    virtual ~Command() = default;
+    virtual void Execute() const = 0;
+};
+
+class CommandA: public Command {
+public:
+    CommandA(string_view name): Command(name) {}
+    void Execute() const override {
+        cout << "command A " << name_ << endl;
+    }
+};
+
+class CommandB: public Command {
+public:
+    CommandB(string_view name): Command(name) {}
+    void Execute() const override {
+        cout << "Command B " << name_ << endl;
+    }
+};
+
+class Invoker {
+private:
+    Command const& start_;
+    Command const& end_;
+public:
+    Invoker(Command const& start, Command const& end): start_(start), end_(end) {
+    }
+
+    void Execute() const {
+        start_.Execute();
+        cout << "invoking" << endl;
+        end_.Execute();
+    }
+};
+
+void Client(Invoker const& invoker) {
+    invoker.Execute();
+}
+
+int main() {
+    CommandA startCommand("start");
+    CommandB endCommand("end");
+    Invoker invoker(startCommand, endCommand);
+    Client(invoker);
     return 0;
 }
 ```
