@@ -16,6 +16,8 @@
 - [3. Behavioral Patterns](#3-behavioral-patterns)
   - [3.1. chain of responsibiliby](#31-chain-of-responsibiliby)
   - [command](#command)
+  - [Iterator](#iterator)
+  - [Mediator](#mediator)
 
 # 1. creational patterns
 ## 1.1. Abstract Factory
@@ -712,3 +714,10 @@ int main() {
     return 0;
 }
 ```
+
+
+## Iterator
+is a design pattern that allow you traverse a collection of elements without exposing it underlying implementation (stack, list, queue ect.)
+
+## Mediator
+is a design pattern that allow you reduce complex depedency between objects. It restrict all the direct comunication between objects and only allow comunication via the mediator.
