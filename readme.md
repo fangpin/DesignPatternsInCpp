@@ -15,9 +15,11 @@
   - [2.7. proxy](#27-proxy)
 - [3. Behavioral Patterns](#3-behavioral-patterns)
   - [3.1. chain of responsibiliby](#31-chain-of-responsibiliby)
-  - [command](#command)
-  - [Iterator](#iterator)
-  - [Mediator](#mediator)
+  - [3.2. command](#32-command)
+  - [3.3. Iterator](#33-iterator)
+  - [3.4. Mediator](#34-mediator)
+  - [3.5. Memento](#35-memento)
+  - [3.6. Observer](#36-observer)
 
 # 1. creational patterns
 ## 1.1. Abstract Factory
@@ -652,7 +654,7 @@ int main() {
 }
 ```
 
-## command
+## 3.2. command
 is a design pattern that turns a request into a standalone object that stores all the required information of the request, which enables you parameterize a method with different requests, delay or queue a request's execution, and support undoable operations
 ```cpp
 #include <iostream>
@@ -716,8 +718,87 @@ int main() {
 ```
 
 
-## Iterator
+## 3.3. Iterator
 is a design pattern that allow you traverse a collection of elements without exposing it underlying implementation (stack, list, queue ect.)
 
-## Mediator
+## 3.4. Mediator
 is a design pattern that allow you reduce complex depedency between objects. It restrict all the direct comunication between objects and only allow comunication via the mediator.
+
+## 3.5. Memento
+is a design pattern that lets you save and restore the previous stat of an object with exposing the details of its implementation.
+
+## 3.6. Observer
+is a design pattern that lets you define a subscription mechanism to notify multiple objects about any events that happen to the object they're observing
+```cpp
+#include <iostream>
+#include <string>
+#include <list>
+
+using namespace std;
+
+class ISubject;
+class IObserver;
+
+class ISubject {
+public:
+    virtual ~ISubject() {}
+    virtual void Notify(string const& msg) = 0;
+    virtual void AddSubscriber(IObserver* observer) = 0;
+    virtual void RemoveSubscriber(IObserver* observer) = 0;
+};
+
+class IObserver {
+public:
+    virtual ~IObserver() {}
+    virtual void Subscribe(ISubject* subject) = 0;
+    virtual void Unsubscribe(ISubject* subject) = 0;
+    virtual void OnNotify(string const& msg) = 0;
+};
+
+class Subject : public ISubject {
+public:
+    Subject() = default;
+    void AddSubscriber(IObserver* observer) override {
+        observers.push_back(observer);
+    }
+    void RemoveSubscriber(IObserver* observer) override {
+        observers.remove(observer);
+    }
+    void Notify(const string& msg) {
+        for (auto it = observers.begin(); it != observers.end(); ++it) {
+            (*it)->OnNotify(msg);
+        }
+    }
+
+private:
+    list<IObserver*> observers;
+};
+
+class Observer : public IObserver {
+public:
+    void Subscribe(ISubject* subject) override {
+        subject->AddSubscriber(this);
+    }
+    void Unsubscribe(ISubject* subject) override {
+        subject->RemoveSubscriber(this);
+    }
+    void OnNotify(string const& msg) override {
+        cout << msg << endl;
+    }
+};
+
+int main() {
+    Subject subject;
+    Observer observer1;
+    Observer observer2;
+
+    observer1.Subscribe(&subject);
+    observer2.Subscribe(&subject);
+    subject.Notify("msg1");
+
+    observer1.Unsubscribe(&subject);
+    subject.Notify("msg2");
+    
+    return 0;
+}
+```
